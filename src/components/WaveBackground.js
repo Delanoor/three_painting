@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { shaderMaterial } from "@react-three/drei";
 import glsl from "babel-plugin-glsl/macro";
 import { extend, useFrame, useLoader } from "@react-three/fiber";
+import { useControls } from "leva";
 
 function WaveBackground() {
   const WaveShaderMaterial = shaderMaterial(
@@ -28,7 +29,7 @@ function WaveBackground() {
         vUv = uv;
 
         vec3 pos = position;
-        float noiseFreq = 1.8;
+        float noiseFreq = 1.3;
         float noiseAmp = 0.1;
         vec3 noisePos = vec3(pos.x * noiseFreq + uTime, pos.y, pos.z);
         pos.z += snoise3(noisePos) * noiseAmp;
@@ -58,10 +59,20 @@ function WaveBackground() {
   extend({ WaveShaderMaterial });
 
   const Wave = () => {
+    const imageRef = useRef(
+      "https://images.unsplash.com/photo-1661863253432-b4f50c80ced2?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=987&q=80"
+    );
+    const values = useControls({
+      image: {
+        value:
+          "https://images.unsplash.com/photo-1661863253432-b4f50c80ced2?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=987&q=80",
+        onchange: (v) => {
+          imageRef.current = v;
+        },
+      },
+    });
     const waveRef = useRef();
-    const [image] = useLoader(THREE.TextureLoader, [
-      "https://images.unsplash.com/photo-1661863253432-b4f50c80ced2?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=987&q=80",
-    ]);
+    const [image] = useLoader(THREE.TextureLoader, [values.image]);
     useFrame(({ clock }) => (waveRef.current.uTime = clock.getElapsedTime()));
     return (
       <mesh>
